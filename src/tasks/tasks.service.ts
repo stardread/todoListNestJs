@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Task, TaskStatus } from 'src/schema/task.schema';
+import { Task, TaskStatus } from '../schema/task.schema';
 
 @Injectable()
 export class TasksService {
@@ -9,7 +9,7 @@ export class TasksService {
     @InjectModel(Task.name) private readonly taskModel: Model<Task>,
   ) {}
 
-  async getTasks(status: TaskStatus): Promise<Task[]> {
+  async getTasks(status: TaskStatus | undefined): Promise<Task[]> {
     console.log('Fetching todo list from the database');
     let tasks: Task[] = [];
     try {

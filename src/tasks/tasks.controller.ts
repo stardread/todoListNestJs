@@ -7,7 +7,7 @@ export class TasksController {
   constructor(private readonly TasksService: TasksService) {}
 
   @Get()
-  async getTasks(@Query('status') status: TaskStatus): Promise<Task[]> {
+  async getTasks(@Query('status') status?: TaskStatus): Promise<Task[]> {
     return this.TasksService.getTasks(status);
   }
 
