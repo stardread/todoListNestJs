@@ -1,14 +1,14 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { Task } from 'src/schema/task.schema';
+import { Task, TaskStatus } from 'src/schema/task.schema';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly TasksService: TasksService) {}
 
   @Get()
-  async getTasks(): Promise<Task[]> {
-    return this.TasksService.getTasks();
+  async getTasks(@Query('status') status: TaskStatus): Promise<Task[]> {
+    return this.TasksService.getTasks(status);
   }
 
   @Get(':id')

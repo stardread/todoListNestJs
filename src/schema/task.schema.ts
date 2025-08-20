@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
 export type TaskDocument = HydratedDocument<Task>;
+export type TaskStatus = 'done' | 'inProgress' | 'todo';
 
 @Schema({ collection: 'task' })
 export class Task {
@@ -12,7 +13,7 @@ export class Task {
   description: string;
 
   @Prop({ required: true })
-  status: string;
+  status: TaskStatus;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(Task);
