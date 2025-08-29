@@ -33,13 +33,36 @@ export class TasksService {
 
   async getTask(id: string): Promise<Task | null> {
     console.log(`Fetching todo item with id: ${id}`);
-    let res: Task | null;
+    let res: Task | null = null;
     try {
       res = await this.taskModel.findById(id).lean().exec();
     } catch (error) {
       console.error(`Error fetching todo item with id ${id}:`, error);
       throw new HttpException(
         `Could not fetch todo item with id ${id}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    if (!res) {
+      throw new HttpException(
+        `Todo item with id ${id} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return res;
+  }
+
+  async updateTask(id: string, todo: Task): Promise<Task | null> {
+    console.log(`Updating todo item with id: ${id}`);
+    let res: Task | null = null;
+    try {
+      res = await this.taskModel
+        .findByIdAndUpdate(id, { ...todo }, { new: true })
+        .exec();
+    } catch (error) {
+      console.error(`Error updating todo item with id ${id}:`, error);
+      throw new HttpException(
+        `Could not update todo item with id ${id}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

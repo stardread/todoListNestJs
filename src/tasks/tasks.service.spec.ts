@@ -14,6 +14,7 @@ describe('TasksService', () => {
   const mockModel = {
     find: jest.fn(),
     findById: jest.fn(),
+    findByIdAndUpdate: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -134,6 +135,55 @@ describe('TasksService', () => {
         );
         expect((err as HttpException).message).toBe(
           'Could not fetch todo item with id 1',
+        );
+      }
+    });
+  });
+
+  describe('updateTask', () => {
+    it('retourne la tâche mise à jour quand elle existe', async () => {
+      const execMock = jest.fn().mockResolvedValue(mockTask);
+      mockModel.findByIdAndUpdate.mockReturnValue({ exec: execMock });
+
+      const result = await service.updateTask('1', mockTask);
+
+      expect(mockModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        '1',
+        { ...mockTask },
+        { new: true },
+      );
+      expect(execMock).toHaveBeenCalled();
+      expect(result).toEqual(mockTask);
+    });
+
+    it("lève HttpException 404 si la tâche à mettre à jour n'existe pas", async () => {
+      const execMock = jest.fn().mockResolvedValue(null);
+      mockModel.findByIdAndUpdate.mockReturnValue({ exec: execMock });
+
+      try {
+        await service.updateTask('999', mockTask);
+      } catch (err) {
+        expect(err).toBeInstanceOf(HttpException);
+        expect((err as HttpException).getStatus()).toBe(HttpStatus.NOT_FOUND);
+        expect((err as HttpException).message).toBe(
+          'Todo item with id 999 not found',
+        );
+      }
+    });
+
+    it("lève HttpException 500 en cas d'erreur DB", async () => {
+      const execMock = jest.fn().mockRejectedValue(new Error('db error'));
+      mockModel.findByIdAndUpdate.mockReturnValue({ exec: execMock });
+
+      try {
+        await service.updateTask('1', mockTask);
+      } catch (err) {
+        expect(err).toBeInstanceOf(HttpException);
+        expect((err as HttpException).getStatus()).toBe(
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+        expect((err as HttpException).message).toBe(
+          'Could not update todo item with id 1',
         );
       }
     });

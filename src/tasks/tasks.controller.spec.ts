@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
-import { TaskStatus } from 'src/schema/task.schema';
+import { TaskStatus } from '../schema/task.schema';
 import { mockTasks } from './tasks.mock';
 describe('TasksController', () => {
   let controller: TasksController;
@@ -16,6 +16,7 @@ describe('TasksController', () => {
           useValue: {
             getTasks: jest.fn(),
             getTask: jest.fn(),
+            updateTask: jest.fn(),
           },
         },
       ],
@@ -73,6 +74,30 @@ describe('TasksController', () => {
       const result = await controller.getTask('999');
 
       expect(getTaskSpy).toHaveBeenCalledWith('999');
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('PUT /tasks/:id', () => {
+    const task = mockTasks[0];
+    it('retourne la tâche quand elle existe', async () => {
+      const updateTaskSpy = jest
+        .spyOn(service, 'updateTask')
+        .mockResolvedValue(task);
+      const result = await controller.updateTask('1', task);
+
+      expect(updateTaskSpy).toHaveBeenCalledWith('1', task);
+      expect(result).toEqual(task);
+    });
+
+    it('retourne null quand la tâche est absente', async () => {
+      const updateTaskSpy = jest
+        .spyOn(service, 'updateTask')
+        .mockResolvedValue(null);
+
+      const result = await controller.updateTask('999', task);
+
+      expect(updateTaskSpy).toHaveBeenCalledWith('999', task);
       expect(result).toBeNull();
     });
   });
